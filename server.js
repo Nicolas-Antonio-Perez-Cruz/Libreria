@@ -29,6 +29,71 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
+async function inicializarBaseDeDatos() {
+    console.log('🔨 Inicializando base de datos...');
+    
+    try {
+        // 1. Crear tabla libros si no existe
+        await pool.promise().query(`
+            CREATE TABLE IF NOT EXISTS libros (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                titulo VARCHAR(200) NOT NULL,
+                autor VARCHAR(100) NOT NULL,
+                precio DECIMAL(10, 2) NOT NULL,
+                stock INT NOT NULL DEFAULT 10,
+                descripcion TEXT,
+                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        
+        // 2. Crear tabla ventas si no existe
+        await pool.promise().query(`
+            CREATE TABLE IF NOT EXISTS ventas (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                libro_id INT NOT NULL,
+                cantidad INT NOT NULL,
+                fecha_venta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                total DECIMAL(10, 2) NOT NULL
+            )
+        `);
+        
+        // 3. Verificar si hay datos
+        const [result] = await pool.promise().query('SELECT COUNT(*) as count FROM libros');
+        
+        // 4. Insertar datos si la tabla está vacía
+        if (result[0].count === 0) {
+            console.log('📚 Insertando datos de ejemplo...');
+            await pool.promise().query(`
+                INSERT INTO libros (titulo, autor, precio, stock, descripcion) VALUES
+                ('Cien años de soledad', 'Gabriel García Márquez', 18.50, 15, 'Novela del realismo mágico'),
+                ('1984', 'George Orwell', 14.99, 12, 'Novela distópica'),
+                ('El principito', 'Antoine de Saint-Exupéry', 9.99, 20, 'Fábula filosófica'),
+                ('Don Quijote de la Mancha', 'Miguel de Cervantes', 22.50, 8, 'Novela clásica española'),
+                ('Harry Potter y la piedra filosofal', 'J.K. Rowling', 16.75, 18, 'Primer libro de la saga')
+            `);
+            console.log('✅ 5 libros insertados');
+        } else {
+            console.log(`✅ ${result[0].count} libros ya existen`);
+        }
+        
+        console.log('✅ Base de datos lista');
+        
+    } catch (error) {
+        console.error('❌ Error inicializando BD:', error.message);
+    }
+}
+
+// Llamar después de verificar conexión
+pool.getConnection((err, connection) => {
+    if (err) {
+        console.error('❌ Error MySQL:', err.message);
+    } else {
+        console.log('✅ MySQL Conectado');
+        connection.release();
+        inicializarBaseDeDatos(); // ← CREA TABLAS
+    }
+});
+
 pool.getConnection((err, conn) => {
     if (err) {
         console.error('❌ Error MySQL:', err.message);
