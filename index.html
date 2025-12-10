@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Librería Online</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Librería</h1>
+            <nav>
+                <a href="#" onclick="mostrarSeccion('catalogo')">Catálogo</a>
+                <a href="#" onclick="mostrarSeccion('agregar')">Agregar Libro</a>
+                <a href="#" onclick="mostrarSeccion('editar')">Editar Libro</a>
+                <a href="#" onclick="mostrarSeccion('ventas')">Ver Ventas</a>
+            </nav>
+        </header>
+        <main>
+            <section id="catalogo" class="seccion-activa">
+                <h2>Catálogo de Libros</h2>
+                <div class="filtros">
+                    <input type="text" id="buscarLibro" placeholder="Buscar libro..." 
+                           onkeyup="filtrarLibros()">
+                </div>
+                <div id="lista-libros" class="grid-libros">
+                    <p>Cargando libros...</p>
+                </div>
+            </section>
+            <section id="agregar" class="seccion-oculta">
+                <h2>Agregar Nuevo Libro</h2>
+                <form id="form-agregar-libro">
+                    <input type="text" id="titulo" placeholder="Título del libro" required>
+                    <input type="text" id="autor" placeholder="Autor" required>
+                    <input type="number" id="precio" placeholder="Precio" step="0.01" required>
+                    <input type="number" id="stock" placeholder="Cantidad en stock" required>
+                    <textarea id="descripcion" placeholder="Descripción"></textarea>
+                    <button type="submit">Agregar Libro</button>
+                </form>
+            </section>
+            <section id="editar" class="seccion-oculta">
+                <h2>Editar Libro Existente</h2>
+                <div class="buscar-editar">
+                    <input type="number" id="id-editar" placeholder="ID del libro a editar">
+                    <button onclick="buscarLibroParaEditar()">Buscar</button>
+                </div>
+                <form id="form-editar-libro" class="form-oculto">
+                    <input type="hidden" id="editar-id">
+                    <input type="text" id="editar-titulo" placeholder="Título" required>
+                    <input type="text" id="editar-autor" placeholder="Autor" required>
+                    <input type="number" id="editar-precio" placeholder="Precio" step="0.01" required>
+                    <input type="number" id="editar-stock" placeholder="Stock" required>
+                    <textarea id="editar-descripcion" placeholder="Descripción"></textarea>
+                    <div class="botones-editar">
+                        <button type="submit">Guardar Cambios</button>
+                        <button type="button" onclick="eliminarLibro()" class="btn-eliminar">Eliminar Libro</button>
+                    </div>
+                </form>
+            </section>
+            <section id="ventas" class="seccion-oculta">
+                <h2>Ventas Realizadas</h2>
+                <div id="lista-ventas">
+                    <p>Cargando ventas...</p>
+                </div>
+            </section>
+        </main>
+    </div>
+    <div id="modal-comprar" class="modal">
+        <div class="modal-contenido">
+            <h3>Comprar Libro</h3>
+            <p id="modal-titulo"></p>
+            <p>Precio: $<span id="modal-precio"></span></p>
+            <p>Stock disponible: <span id="modal-stock"></span></p>
+            <input type="number" id="cantidad-comprar" value="1" min="1">
+            <div class="modal-botones">
+                <button onclick="confirmarCompra()">Comprar</button>
+                <button onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
