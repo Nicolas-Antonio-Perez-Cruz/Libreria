@@ -156,18 +156,22 @@
     }
 
     function mostrarFormularioEdicion(libro) {
-        libroActual = libro;
-        
-        document.getElementById('editar-id').value = libro.id;
-        document.getElementById('editar-titulo').value = libro.titulo;
-        document.getElementById('editar-autor').value = libro.autor;
-        document.getElementById('editar-precio').value = libro.precio;
-        document.getElementById('editar-stock').value = libro.stock;
-        document.getElementById('editar-descripcion').value = libro.descripcion || '';
-        
-        // CRÍTICO: Asegurarse de que se elimine la clase de ocultación correcta
-        document.getElementById('form-editar-libro').classList.remove('form-oculta');
-    }
+    // 1. Guarda el objeto del libro para usarlo en Guardar o Eliminar
+    libroActual = libro;
+    
+    // 2. Carga los valores del libro en los campos del formulario
+    document.getElementById('editar-id').value = libro.id;
+    document.getElementById('editar-titulo').value = libro.titulo;
+    document.getElementById('editar-autor').value = libro.autor;
+    document.getElementById('editar-precio').value = libro.precio;
+    document.getElementById('editar-stock').value = libro.stock;
+    // Manejo de la descripción si es NULL o vacía
+    document.getElementById('editar-descripcion').value = libro.descripcion || ''; 
+    
+    // 3. CRÍTICO: Remueve la clase que oculta el formulario
+    // Si esta línea falla, el formulario permanece invisible.
+    document.getElementById('form-editar-libro').classList.remove('form-oculta');
+}
 
     function editarLibroDesdeCatalogo(id) {
         mostrarSeccion('editar');
