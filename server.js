@@ -9,12 +9,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// CONEXIÓN A MYSQL DE RAILWAY
 const db = mysql.createConnection({
     host: process.env.MYSQLHOST || 'localhost',
     user: process.env.MYSQLUSER || 'root',
-    password: process.env.MYSQLPASSWORD || '',
-    database: process.env.MYSQLDATABASE || 'railway',
+    password: process.env.MYSQLPASSWORD || process.env.MYSQL_ROOT_PASSWORD || '',
+    database: process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'railway',
     port: process.env.MYSQLPORT || 3306
 });
 
@@ -26,7 +25,6 @@ db.connect((err) => {
     }
 });
 
-// RUTAS (todas las que ya tenías, PERO SIN /api)
 app.get('/libros', (req, res) => {
     const sql = 'SELECT * FROM libros ORDER BY titulo';
     db.query(sql, (err, results) => {
