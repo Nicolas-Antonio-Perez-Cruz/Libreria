@@ -3,14 +3,14 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 const app = express();
-
+const $PORT = process.env.PORT || 3306
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 const db = mysql.createConnection({
     host: 'turntable.proxy.rlwy.net',
     user: 'root',
-    port: process.env.PORT || 3306,
+    port: $PORT,
     database: 'railway',
     password: 'MVZWzJDAFVcZwOoYnYOJHuEAnMOaDyOG',
     connectTimeout: 20000,
