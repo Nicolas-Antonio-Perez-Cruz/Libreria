@@ -16,12 +16,15 @@ function mostrarSeccion(seccionId) {
     }
     if (seccionId === 'catalogo') cargarLibros();
     if (seccionId === 'ventas') cargarVentas();
+    
+    // **Ajuste para la sección Editar**
     if (seccionId === 'editar') {
-        document.getElementById('form-editar-libro').classList.add('form-oculta');
-        document.getElementById('id-editar').value = '';
+        // Ocultar el formulario de edición (solo se muestra al buscar un ID)
+        document.getElementById('form-editar-libro').classList.add('form-oculta'); 
+        // Limpiar el campo de búsqueda de ID
+        document.getElementById('id-editar').value = ''; 
     }
 }
-
 async function cargarLibros() {
     try {
         const lista = document.getElementById('lista-libros');
