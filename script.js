@@ -111,18 +111,22 @@ function configurarFormularioAgregar() {
     });
 }
 
+// La función debe ser global (no dentro de otro scope)
 async function buscarLibroParaEditar() {
+    // CRÍTICO: Agregamos este console.log para verificar si el botón está llamando a la función.
+    console.log('--- Función buscarLibroParaEditar llamada ---'); 
+    
     // 1. Obtener y validar el ID
     const id = document.getElementById('id-editar').value;
+    
     if (!id || isNaN(id) || parseInt(id) <= 0) {
         alert('Ingresa un ID de libro válido.');
-        // Ocultar el formulario si se ingresa un ID inválido
         document.getElementById('form-editar-libro').classList.add('form-oculta');
         return;
     }
     
     try {
-        // 2. Llamada a la API
+        // 2. Llamada a la API (API_URL debe ser vacía: '')
         const respuesta = await fetch(`${API_URL}/libros/${id}`);
         
         if (!respuesta.ok) {
@@ -133,7 +137,6 @@ async function buscarLibroParaEditar() {
                 const errorData = await respuesta.json();
                 throw new Error(`Error ${respuesta.status}: ${errorData.error}`);
             }
-            // Ocultar el formulario en caso de error
             document.getElementById('form-editar-libro').classList.add('form-oculta');
             return;
         }
@@ -143,7 +146,7 @@ async function buscarLibroParaEditar() {
         mostrarFormularioEdicion(libro);
         
     } catch (error) {
-        alert(`Error: ${error.message}`);
+        alert(`Error en la búsqueda de la API: ${error.message}`);
         document.getElementById('form-editar-libro').classList.add('form-oculta');
     }
 }
