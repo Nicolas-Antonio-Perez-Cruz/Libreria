@@ -20,7 +20,7 @@
         // **Ajuste para la sección Editar**
         if (seccionId === 'editar') {
             // Ocultar el formulario de edición (solo se muestra al buscar un ID)
-            document.getElementById('form-editar-libro').classList.add('form-oculta'); 
+            document.getElementById('form-editar-libro').classList.add('form-oculto'); 
             // Limpiar el campo de búsqueda de ID
             document.getElementById('id-editar').value = ''; 
         }
@@ -170,7 +170,7 @@
     
     // 3. CRÍTICO: Remueve la clase que oculta el formulario
     // Si esta línea falla, el formulario permanece invisible.
-    document.getElementById('form-editar-libro').classList.remove('form-oculta');
+    document.getElementById('form-editar-libro').classList.remove('form-oculto');
 }
 
     function editarLibroDesdeCatalogo(id) {
@@ -223,7 +223,7 @@
             if (!respuesta.ok) throw new Error(`Error ${respuesta.status}`);
             
             alert(`Libro eliminado ✓`);
-            document.getElementById('form-editar-libro').classList.add('form-oculta');
+            document.getElementById('form-editar-libro').classList.add('form-oculto');
             cargarLibros();
             mostrarSeccion('catalogo');
             
