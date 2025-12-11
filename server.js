@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -10,24 +9,24 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
+// CONEXIÓN A MYSQL DE RAILWAY
 const db = mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'libreria_db',
-    port: process.env.DB_PORT || 3306
+    host: process.env.MYSQLHOST || 'localhost',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || '',
+    database: process.env.MYSQLDATABASE || 'libreria_db',
+    port: process.env.MYSQLPORT || 3306
 });
 
 db.connect((err) => {
     if (err) {
-        console.error('Error conectando a MySQL:', err);
-        return;
+        console.error('Error conectando a MySQL:', err.message);
+    } else {
+        console.log('Conectado a MySQL de Railway');
     }
-    console.log('Conectado a MySQL');
 });
 
-// RUTAS SIN /api
-
+// RUTAS (todas las que ya tenías, PERO SIN /api)
 app.get('/libros', (req, res) => {
     const sql = 'SELECT * FROM libros ORDER BY titulo';
     db.query(sql, (err, results) => {
