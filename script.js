@@ -51,6 +51,7 @@ function mostrarLibros(libros) {
     
     lista.innerHTML = libros.map(libro => `
         <div class="libro-card">
+            <p class="libro-id">ID: ${libro.id}</p>
             <h3>${libro.titulo}</h3>
             <p><strong>Autor:</strong> ${libro.autor}</p>
             <p>${libro.descripcion || 'Sin descripción'}</p>
