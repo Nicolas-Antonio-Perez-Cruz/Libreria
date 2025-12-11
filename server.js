@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 const app = express();
-const $PORT = process.env.PORT || 3306;
+const PORT = process.env.PORT || 3306;
 //mysql://root:MVZWzJDAFVcZwOoYnYOJHuEAnMOaDyOG@turntable.proxy.rlwy.net:21792/railway;
 app.use(cors());
 app.use(express.json());
@@ -24,36 +24,6 @@ db.connect((err) => {
     } else {
         console.log('MySQL conectado en Railway');
     }
-});
-
-// VERIFICAR TABLAS AL INICIAR
-db.query(`
-    CREATE TABLE IF NOT EXISTS libros (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        titulo VARCHAR(200) NOT NULL,
-        autor VARCHAR(100) NOT NULL,
-        precio DECIMAL(10, 2) NOT NULL,
-        stock INT NOT NULL DEFAULT 10,
-        descripcion TEXT,
-        fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-`, (err) => {
-    if (err) console.log('Error creando tabla libros:', err.message);
-    else console.log('Tabla libros verificada');
-    
-    db.query(`
-        CREATE TABLE IF NOT EXISTS ventas (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            libro_id INT NOT NULL,
-            cantidad INT NOT NULL,
-            fecha_venta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            total DECIMAL(10, 2) NOT NULL,
-            FOREIGN KEY (libro_id) REFERENCES libros(id) ON DELETE CASCADE
-        )
-    `, (err) => {
-        if (err) console.log('Error creando tabla ventas:', err.message);
-        else console.log('Tabla ventas verificada');
-    });
 });
 
 // RUTAS
@@ -207,6 +177,6 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen($PORT, () => {
-    console.log(`Servidor listo en puerto ${$PORT}`);
+app.listen(PORT, () => {
+    console.log(`Servidor listo en puerto ${PORT}`);
 });
