@@ -13,24 +13,24 @@ app.use(express.json());
 // Servimos archivos estáticos (index.html, script.js, css, etc.)
 app.use(express.static(__dirname)); 
 
-// CONEXIÓN A LA BASE DE DATOS EN RAILWAY
-// Usamos MYSQL_URL, que Railway inyecta después de enlazar los servicios
-const DB_CONNECTION = process.env.MYSQL_URL || {
-    // Fallback detallado si MYSQL_URL no se encuentra:
-    host: process.env.MYSQLHOST || 'localhost', 
-    user: process.env.MYSQLUSER || 'root',
-    port: process.env.MYSQLPORT || 3306,
-    database: process.env.MYSQL_DATABASE || 'railway', 
-    password: process.env.MYSQLPASSWORD || '',
-    multipleStatements : true
-};
-
-const db = mysql.createConnection(DB_CONNECTION);
+// CONEXIÓN A LA BASE DE DATOS EN RAILWAY (Configuración robusta contra ETIMEDOUT)
+// Esta configuración usa las variables individuales inyectadas por Railway 
+// (MYSQLHOST, MYSQLUSER, etc.), que es la opción más estable.
+const db = mysql.createConnection({
+    host: process.env.MYSQLHOST, 
+    user: process.env.MYSQLUSER,
+    port: process.env.MYSQLPORT, 
+    database: process.env.MYSQL_DATABASE, // Usamos la variable con guión bajo
+    password: process.env.MYSQLPASSWORD,
+    multipleStatements : true,
+    // CRÍTICO: Aumentamos el tiempo de espera de conexión a 20 segundos para evitar ETIMEDOUT
+    connectTimeout: 20000 
+});
 
 db.connect((err) => {
     if (err) {
         console.error('Error MySQL: NO SE PUDO CONECTAR', err.message);
-        console.error('Verifica si el servicio de "Libreria" está enlazado a "MySQL" en Railway.');
+        console.error('Verifica que tu servicio de "Libreria" esté enlazado a "MySQL" en Railway.');
     } else {
         console.log('MySQL conectado en Railway');
     }
@@ -42,7 +42,8 @@ app.get('/libros', (req, res) => {
     const sql = 'SELECT * FROM libros ORDER BY titulo';
     db.query(sql, (err, results) => {
         if (err) {
-            res.status(500).json({ error: err.message });
+            console.error('Error al obtener libros:', err.message);
+            res.status(500).json({ error: 'Error al obtener datos de la base de datos.' });
             return;
         }
         res.json(results);
