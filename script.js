@@ -112,21 +112,39 @@ function configurarFormularioAgregar() {
 }
 
 async function buscarLibroParaEditar() {
+    // 1. Obtener y validar el ID
     const id = document.getElementById('id-editar').value;
-    if (!id) return alert('Ingresa un ID');
+    if (!id || isNaN(id) || parseInt(id) <= 0) {
+        alert('Ingresa un ID de libro válido.');
+        // Ocultar el formulario si se ingresa un ID inválido
+        document.getElementById('form-editar-libro').classList.add('form-oculta');
+        return;
+    }
     
     try {
+        // 2. Llamada a la API
         const respuesta = await fetch(`${API_URL}/libros/${id}`);
+        
         if (!respuesta.ok) {
-            if (respuesta.status === 404) throw new Error('Libro no encontrado');
-            throw new Error(`Error ${respuesta.status}`);
+            // Manejo de errores específicos
+            if (respuesta.status === 404) {
+                alert('Error: Libro no encontrado con ese ID.');
+            } else {
+                const errorData = await respuesta.json();
+                throw new Error(`Error ${respuesta.status}: ${errorData.error}`);
+            }
+            // Ocultar el formulario en caso de error
+            document.getElementById('form-editar-libro').classList.add('form-oculta');
+            return;
         }
         
+        // 3. Si es exitoso, mostrar el formulario
         const libro = await respuesta.json();
         mostrarFormularioEdicion(libro);
         
     } catch (error) {
         alert(`Error: ${error.message}`);
+        document.getElementById('form-editar-libro').classList.add('form-oculta');
     }
 }
 
@@ -140,6 +158,7 @@ function mostrarFormularioEdicion(libro) {
     document.getElementById('editar-stock').value = libro.stock;
     document.getElementById('editar-descripcion').value = libro.descripcion || '';
     
+    // CRÍTICO: Asegurarse de que se elimine la clase de ocultación correcta
     document.getElementById('form-editar-libro').classList.remove('form-oculta');
 }
 
