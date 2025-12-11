@@ -1,108 +1,8 @@
+// server.js
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
-
-if (process.env.NODE_ENV === 'production') {
-    console.log('🔧 Entorno: Railway (Producción)');
-    if (process.env.MYSQL_URL) {
-        const url = new URL(process.env.MYSQL_URL);
-        process.env.DB_HOST = url.hostname;
-        process.env.DB_USER = url.username;
-        process.env.DB_PASSWORD = url.password;
-        process.env.DB_NAME = url.pathname.slice(1);
-        process.env.DB_PORT = url.port || '3306';
-    }
-} else {
-    console.log('🔧 Entorno: Desarrollo Local');
-    require('dotenv').config(); 
-}
-
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || process.env.MYSQLHOST || 'localhost',
-    user: process.env.DB_USER || process.env.MYSQLUSER || 'root',
-    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || '',
-    database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'libreria_db',
-    port: process.env.DB_PORT || process.env.MYSQLPORT || 3306,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
-
-async function inicializarBaseDeDatos() {
-    console.log('🔨 Inicializando base de datos...');
-    
-    try {
-        // 1. Crear tabla libros si no existe
-        await pool.promise().query(`
-            CREATE TABLE IF NOT EXISTS libros (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                titulo VARCHAR(200) NOT NULL,
-                autor VARCHAR(100) NOT NULL,
-                precio DECIMAL(10, 2) NOT NULL,
-                stock INT NOT NULL DEFAULT 10,
-                descripcion TEXT,
-                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        
-        // 2. Crear tabla ventas si no existe
-        await pool.promise().query(`
-            CREATE TABLE IF NOT EXISTS ventas (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                libro_id INT NOT NULL,
-                cantidad INT NOT NULL,
-                fecha_venta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                total DECIMAL(10, 2) NOT NULL
-            )
-        `);
-        
-        // 3. Verificar si hay datos
-        const [result] = await pool.promise().query('SELECT COUNT(*) as count FROM libros');
-        
-        // 4. Insertar datos si la tabla está vacía
-        if (result[0].count === 0) {
-            console.log('📚 Insertando datos de ejemplo...');
-            await pool.promise().query(`
-                INSERT INTO libros (titulo, autor, precio, stock, descripcion) VALUES
-                ('Cien años de soledad', 'Gabriel García Márquez', 18.50, 15, 'Novela del realismo mágico'),
-                ('1984', 'George Orwell', 14.99, 12, 'Novela distópica'),
-                ('El principito', 'Antoine de Saint-Exupéry', 9.99, 20, 'Fábula filosófica'),
-                ('Don Quijote de la Mancha', 'Miguel de Cervantes', 22.50, 8, 'Novela clásica española'),
-                ('Harry Potter y la piedra filosofal', 'J.K. Rowling', 16.75, 18, 'Primer libro de la saga')
-            `);
-            console.log('✅ 5 libros insertados');
-        } else {
-            console.log(`✅ ${result[0].count} libros ya existen`);
-        }
-        
-        console.log('✅ Base de datos lista');
-        
-    } catch (error) {
-        console.error('❌ Error inicializando BD:', error.message);
-    }
-}
-
-// Llamar después de verificar conexión
-pool.getConnection((err, connection) => {
-    if (err) {
-        console.error('❌ Error MySQL:', err.message);
-    } else {
-        console.log('✅ MySQL Conectado');
-        connection.release();
-        inicializarBaseDeDatos(); // ← CREA TABLAS
-    }
-});
-
-pool.getConnection((err, conn) => {
-    if (err) {
-        console.error('❌ Error MySQL:', err.message);
-    } else {
-        console.log('✅ MySQL Conectado');
-        conn.release();
-    }
-});
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -110,111 +10,174 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-app.get('/libros', async (req, res) => {
-    try {
-        const [libros] = await pool.promise().query('SELECT * FROM libros ORDER BY id DESC');
-        res.json(libros);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+const db = mysql.createConnection({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'libreria_db',
+    port: process.env.DB_PORT || 3306
 });
 
-app.get('/libros/:id', async (req, res) => {
-    try {
-        const [libros] = await pool.promise().query('SELECT * FROM libros WHERE id = ?', [req.params.id]);
-        if (libros.length === 0) return res.status(404).json({ error: 'No encontrado' });
-        res.json(libros[0]);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+db.connect((err) => {
+    if (err) {
+        console.error('Error conectando a MySQL:', err);
+        return;
     }
+    console.log('Conectado a MySQL');
 });
 
-app.post('/libros', async (req, res) => {
-    try {
-        const { titulo, autor, precio, stock, descripcion } = req.body;
-        const [result] = await pool.promise().query(
-            'INSERT INTO libros (titulo, autor, precio, stock, descripcion) VALUES (?, ?, ?, ?, ?)',
-            [titulo, autor, precio, stock, descripcion || '']
-        );
-        res.status(201).json({ id: result.insertId, ...req.body });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+// RUTAS SIN /api
 
-app.put('/libros/:id', async (req, res) => {
-    try {
-        const { titulo, autor, precio, stock, descripcion } = req.body;
-        await pool.promise().query(
-            'UPDATE libros SET titulo=?, autor=?, precio=?, stock=?, descripcion=? WHERE id=?',
-            [titulo, autor, precio, stock, descripcion || '', req.params.id]
-        );
-        res.json({ mensaje: 'Actualizado', id: req.params.id });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.delete('/libros/:id', async (req, res) => {
-    try {
-        await pool.promise().query('DELETE FROM libros WHERE id=?', [req.params.id]);
-        res.json({ mensaje: 'Eliminado', id: req.params.id });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.post('/comprar', async (req, res) => {
-    const conn = await pool.promise().getConnection();
-    try {
-        await conn.beginTransaction();
-        const { libro_id, cantidad } = req.body;
-        
-        const [libros] = await conn.query('SELECT * FROM libros WHERE id=? FOR UPDATE', [libro_id]);
-        if (libros.length === 0) throw new Error('Libro no existe');
-        
-        const libro = libros[0];
-        if (libro.stock < cantidad) throw new Error(`Stock insuficiente: ${libro.stock}`);
-        
-        const total = libro.precio * cantidad;
-        await conn.query('INSERT INTO ventas (libro_id, cantidad, total) VALUES (?, ?, ?)', 
-            [libro_id, cantidad, total]);
-        await conn.query('UPDATE libros SET stock=stock-? WHERE id=?', [cantidad, libro_id]);
-        
-        await conn.commit();
-        res.json({ mensaje: 'Compra exitosa', total });
-    } catch (err) {
-        await conn.rollback();
-        res.status(400).json({ error: err.message });
-    } finally {
-        conn.release();
-    }
-});
-
-app.get('/ventas', async (req, res) => {
-    try {
-        const [ventas] = await pool.promise().query(
-            'SELECT v.*, l.titulo FROM ventas v JOIN libros l ON v.libro_id = l.id ORDER BY v.fecha_venta DESC'
-        );
-        res.json(ventas);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.get('/status', (req, res) => {
-    res.json({ 
-        status: 'online', 
-        entorno: process.env.NODE_ENV || 'local',
-        tiempo: new Date().toISOString()
+app.get('/libros', (req, res) => {
+    const sql = 'SELECT * FROM libros ORDER BY titulo';
+    db.query(sql, (err, results) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json(results);
     });
 });
 
-app.get('*', (req, res) => {
+app.get('/libros/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = 'SELECT * FROM libros WHERE id = ?';
+    db.query(sql, [id], (err, results) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        if (results.length === 0) {
+            res.status(404).json({ error: 'Libro no encontrado' });
+            return;
+        }
+        res.json(results[0]);
+    });
+});
+
+app.post('/libros', (req, res) => {
+    const { titulo, autor, precio, stock, descripcion } = req.body;
+    
+    if (!titulo || !autor || !precio || !stock) {
+        res.status(400).json({ error: 'Faltan campos obligatorios' });
+        return;
+    }
+    
+    const sql = 'INSERT INTO libros (titulo, autor, precio, stock, descripcion) VALUES (?, ?, ?, ?, ?)';
+    db.query(sql, [titulo, autor, precio, stock, descripcion || ''], (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({ id: result.insertId, mensaje: 'Libro creado' });
+    });
+});
+
+app.put('/libros/:id', (req, res) => {
+    const { id } = req.params;
+    const { titulo, autor, precio, stock, descripcion } = req.body;
+    
+    const sql = 'UPDATE libros SET titulo = ?, autor = ?, precio = ?, stock = ?, descripcion = ? WHERE id = ?';
+    db.query(sql, [titulo, autor, precio, stock, descripcion || '', id], (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        if (result.affectedRows === 0) {
+            res.status(404).json({ error: 'Libro no encontrado' });
+            return;
+        }
+        res.json({ mensaje: 'Libro actualizado' });
+    });
+});
+
+app.delete('/libros/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = 'DELETE FROM libros WHERE id = ?';
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        if (result.affectedRows === 0) {
+            res.status(404).json({ error: 'Libro no encontrado' });
+            return;
+        }
+        res.json({ mensaje: 'Libro eliminado' });
+    });
+});
+
+app.post('/comprar', (req, res) => {
+    const { libro_id, cantidad } = req.body;
+    
+    if (!libro_id || !cantidad || cantidad <= 0) {
+        res.status(400).json({ error: 'Datos inválidos' });
+        return;
+    }
+    
+    db.query('SELECT * FROM libros WHERE id = ?', [libro_id], (err, results) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        if (results.length === 0) {
+            res.status(404).json({ error: 'Libro no encontrado' });
+            return;
+        }
+        
+        const libro = results[0];
+        if (libro.stock < cantidad) {
+            res.status(400).json({ error: 'Stock insuficiente' });
+            return;
+        }
+        
+        const total = libro.precio * cantidad;
+        
+        const sqlVenta = 'INSERT INTO ventas (libro_id, cantidad, total) VALUES (?, ?, ?)';
+        db.query(sqlVenta, [libro_id, cantidad, total], (err, resultVenta) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            
+            const nuevoStock = libro.stock - cantidad;
+            db.query('UPDATE libros SET stock = ? WHERE id = ?', [nuevoStock, libro_id], (err) => {
+                if (err) {
+                    res.status(500).json({ error: err.message });
+                    return;
+                }
+                
+                res.json({ 
+                    id: resultVenta.insertId, 
+                    total: total,
+                    mensaje: 'Venta registrada' 
+                });
+            });
+        });
+    });
+});
+
+app.get('/ventas', (req, res) => {
+    const sql = `
+        SELECT v.*, l.titulo, l.autor 
+        FROM ventas v 
+        JOIN libros l ON v.libro_id = l.id 
+        ORDER BY v.fecha_venta DESC
+    `;
+    db.query(sql, (err, results) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json(results);
+    });
+});
+
+app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor en http://localhost:${PORT}`);
-    console.log(`📚 Entorno: ${process.env.NODE_ENV || 'local'}`);
+    console.log(`Servidor corriendo en puerto ${PORT}`);
 });

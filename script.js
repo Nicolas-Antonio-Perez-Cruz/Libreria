@@ -1,4 +1,6 @@
-const API_URL = ''; 
+const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000'
+    : '';
 let libroActual = null;
 let todosLosLibros = [];
 
