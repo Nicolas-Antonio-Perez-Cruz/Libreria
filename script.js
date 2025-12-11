@@ -1,6 +1,4 @@
-const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000'
-    : '';
+const API_URL = window.location.hostname === 'mysql://root:MVZWzJDAFVcZwOoYnYOJHuEAnMOaDyOG@mysql.railway.internal:3306/railway'
 let libroActual = null;
 let todosLosLibros = [];
 

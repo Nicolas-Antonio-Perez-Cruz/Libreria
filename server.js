@@ -3,31 +3,28 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 const db = mysql.createConnection({
-    host: process.env.MYSQLHOST || 'localhost',
-    user: process.env.MYSQLUSER || 'root',
-    password: process.env.MYSQLPASSWORD || '',
-    database: process.env.MYSQLDATABASE || 'railway',
-    port: process.env.MYSQLPORT || 3306,
-    
-    // Configuraciones importantes para Railway:
-    connectTimeout: 10000,
-    timeout: 60000,
-    enableKeepAlive: true,
-    keepAliveInitialDelay: 0
+    host: 'turntable.proxy.rlwy.net',
+    user: 'root',
+    port: process.env.PORT || 3306,
+    database: 'railway',
+    password: 'MVZWzJDAFVcZwOoYnYOJHuEAnMOaDyOG',
+    connectTimeout: 20000,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 db.connect((err) => {
     if (err) {
         console.error('Error MySQL:', err.message);
-        console.log('Pero la app puede funcionar en modo demo');
+        
     } else {
-        console.log('✅ MySQL conectado en Railway');
+        console.log('MySQL conectado en Railway');
     }
 });
 
