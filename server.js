@@ -3,20 +3,18 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 const app = express();
-const $PORT = process.env.PORT || 3306
+const $PORT = process.env.PORT || 3306;
+//mysql://root:MVZWzJDAFVcZwOoYnYOJHuEAnMOaDyOG@turntable.proxy.rlwy.net:21792/railway;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 const db = mysql.createConnection({
-    host: 'turntable.proxy.rlwy.net',
-    user: 'root',
-    port: $PORT,
-    database: 'railway',
-    password: 'MVZWzJDAFVcZwOoYnYOJHuEAnMOaDyOG',
-    connectTimeout: 20000,
-    ssl: {
-        rejectUnauthorized: false
-    }
+    host: process.env.HOSTDB || 'localhost',
+    user: process.env.USERDB || 'root',
+    port: process.env.PORTDB || 3306,
+    database: process.env.DB || 'railway',
+    password: process.env.PASSWORDDB || '',
+    multipleStatements : true
 });
 
 db.connect((err) => {
