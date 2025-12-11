@@ -121,7 +121,7 @@
         
         if (!id || isNaN(id) || parseInt(id) <= 0) {
             alert('Ingresa un ID de libro válido.');
-            document.getElementById('form-editar-libro').classList.add('form-oculta');
+            document.getElementById('form-editar-libro').classList.add('form-oculto');
             return;
         }
         
@@ -151,7 +151,7 @@
             
         } catch (error) {
             alert(`Error en la búsqueda de la API: ${error.message}`);
-            document.getElementById('form-editar-libro').classList.add('form-oculta');
+            document.getElementById('form-editar-libro').classList.add('form-oculto');
         }
     }
 
