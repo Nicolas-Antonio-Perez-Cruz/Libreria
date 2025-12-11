@@ -3,24 +3,30 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 3306;
-//mysql://root:MVZWzJDAFVcZwOoYnYOJHuEAnMOaDyOG@turntable.proxy.rlwy.net:21792/railway;
+
+// 1. PUERTO: En Railway, la variable de entorno PORT es obligatoria
+const PORT = process.env.PORT || 3000; // Usar process.env.PORT, 3000 como fallback local
+
+// MIDDLEWARE
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
+
+// 2. CONEXIÓN A DB: Usar las variables estándar de Railway para conexión interna
 const db = mysql.createConnection({
-    host: process.env.HOSTDB || 'localhost',
-    user: process.env.USERDB || 'root',
-    port: process.env.PORTDB || 3306,
-    database: process.env.DB || 'railway',
-    password: process.env.PASSWORDDB || '',
+    // Railway inyecta las variables de su DB:
+    host: process.env.MYSQLHOST || 'localhost',
+    user: process.env.MYSQLUSER || 'root',
+    port: process.env.MYSQLPORT || 3306,
+    database: process.env.MYSQLDATABASE || 'railway',
+    password: process.env.MYSQLPASSWORD || '',
     multipleStatements : true
 });
 
 db.connect((err) => {
     if (err) {
         console.error('Error MySQL:', err.message);
-        
+        // Si hay error en Railway, revisar las variables de entorno de la base de datos
     } else {
         console.log('MySQL conectado en Railway');
     }

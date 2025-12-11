@@ -1,4 +1,5 @@
-const API_URL = window.location.hostname === 'mysql://root:MVZWzJDAFVcZwOoYnYOJHuEAnMOaDyOG@mysql.railway.internal:3306/railway'
+const API_URL = ''; // CORRECCIÓN CLAVE: Cadena vacía para usar rutas relativas en Railway.
+
 let libroActual = null;
 let todosLosLibros = [];
 
