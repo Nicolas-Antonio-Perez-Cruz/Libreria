@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 
-// Usamos el puerto que Railway asigna (ej. 8080 en tu caso)
+// 1. PUERTO: Usamos el puerto que Railway asigna (ej. 8080 en tu log)
 const PORT = process.env.PORT || 3000; 
 
 // MIDDLEWARE
@@ -13,9 +13,9 @@ app.use(express.json());
 // Servimos archivos estáticos (index.html, script.js, css, etc.)
 app.use(express.static(__dirname)); 
 
-// CONEXIÓN A LA BASE DE DATOS EN RAILWAY (Configuración robusta contra ETIMEDOUT)
+// 2. CONEXIÓN A LA BASE DE DATOS EN RAILWAY (Optimizado contra ETIMEDOUT)
 // Esta configuración usa las variables individuales inyectadas por Railway 
-// (MYSQLHOST, MYSQLUSER, etc.), que es la opción más estable.
+// (MYSQLHOST, MYSQLUSER, etc.).
 const db = mysql.createConnection({
     host: process.env.MYSQLHOST, 
     user: process.env.MYSQLUSER,
@@ -42,6 +42,7 @@ app.get('/libros', (req, res) => {
     const sql = 'SELECT * FROM libros ORDER BY titulo';
     db.query(sql, (err, results) => {
         if (err) {
+            // Este es el error que está causando el 500 en el frontend si la DB falla
             console.error('Error al obtener libros:', err.message);
             res.status(500).json({ error: 'Error al obtener datos de la base de datos.' });
             return;

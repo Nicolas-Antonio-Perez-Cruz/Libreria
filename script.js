@@ -17,7 +17,7 @@ function mostrarSeccion(seccionId) {
     if (seccionId === 'catalogo') cargarLibros();
     if (seccionId === 'ventas') cargarVentas();
     if (seccionId === 'editar') {
-        document.getElementById('form-editar-libro').classList.add('form-oculto');
+        document.getElementById('form-editar-libro').classList.add('form-oculta');
         document.getElementById('id-editar').value = '';
     }
 }
@@ -36,7 +36,6 @@ async function cargarLibros() {
         mostrarLibros(libros);
         
     } catch (error) {
-        // Muestra el error 404 si la conexión del backend falla
         document.getElementById('lista-libros').innerHTML = 
             `<p class="error">Error: ${error.message}</p>`;
     }
