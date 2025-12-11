@@ -1,5 +1,5 @@
-const API_URL = ''; // CORRECCIÓN CLAVE: Cadena vacía para usar rutas relativas en Railway.
-
+// CORRECCIÓN FINAL: La API está en el mismo host de Railway, por lo que usamos rutas relativas.
+const API_URL = ''; 
 let libroActual = null;
 let todosLosLibros = [];
 
@@ -27,6 +27,7 @@ async function cargarLibros() {
         const lista = document.getElementById('lista-libros');
         lista.innerHTML = '<p>Cargando...</p>';
         
+        // fetch('/libros')
         const respuesta = await fetch(`${API_URL}/libros`);
         if (!respuesta.ok) throw new Error(`Error ${respuesta.status}`);
         
@@ -35,6 +36,7 @@ async function cargarLibros() {
         mostrarLibros(libros);
         
     } catch (error) {
+        // Muestra el error 404 si la conexión del backend falla
         document.getElementById('lista-libros').innerHTML = 
             `<p class="error">Error: ${error.message}</p>`;
     }
@@ -135,7 +137,7 @@ function mostrarFormularioEdicion(libro) {
     document.getElementById('editar-stock').value = libro.stock;
     document.getElementById('editar-descripcion').value = libro.descripcion || '';
     
-    document.getElementById('form-editar-libro').classList.remove('form-oculto');
+    document.getElementById('form-editar-libro').classList.remove('form-oculta');
 }
 
 function editarLibroDesdeCatalogo(id) {
@@ -188,7 +190,7 @@ async function eliminarLibro() {
         if (!respuesta.ok) throw new Error(`Error ${respuesta.status}`);
         
         alert(`Libro eliminado ✓`);
-        document.getElementById('form-editar-libro').classList.add('form-oculto');
+        document.getElementById('form-editar-libro').classList.add('form-oculta');
         cargarLibros();
         mostrarSeccion('catalogo');
         

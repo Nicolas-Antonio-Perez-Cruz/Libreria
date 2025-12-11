@@ -4,35 +4,40 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 
-// 1. PUERTO: En Railway, la variable de entorno PORT es obligatoria
-const PORT = process.env.PORT || 3000; // Usar process.env.PORT, 3000 como fallback local
+// Usamos el puerto que Railway asigna (ej. 8080 en tu caso)
+const PORT = process.env.PORT || 3000; 
 
 // MIDDLEWARE
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
+// Servimos archivos estáticos (index.html, script.js, css, etc.)
+app.use(express.static(__dirname)); 
 
-// 2. CONEXIÓN A DB: Usar las variables estándar de Railway para conexión interna
-const db = mysql.createConnection({
-    // Railway inyecta las variables de su DB:
-    host: process.env.MYSQLHOST || 'localhost',
+// CONEXIÓN A LA BASE DE DATOS EN RAILWAY
+// Usamos MYSQL_URL, que Railway inyecta después de enlazar los servicios
+const DB_CONNECTION = process.env.MYSQL_URL || {
+    // Fallback detallado si MYSQL_URL no se encuentra:
+    host: process.env.MYSQLHOST || 'localhost', 
     user: process.env.MYSQLUSER || 'root',
     port: process.env.MYSQLPORT || 3306,
-    database: process.env.MYSQLDATABASE || 'railway',
+    database: process.env.MYSQL_DATABASE || 'railway', 
     password: process.env.MYSQLPASSWORD || '',
     multipleStatements : true
-});
+};
+
+const db = mysql.createConnection(DB_CONNECTION);
 
 db.connect((err) => {
     if (err) {
-        console.error('Error MySQL:', err.message);
-        // Si hay error en Railway, revisar las variables de entorno de la base de datos
+        console.error('Error MySQL: NO SE PUDO CONECTAR', err.message);
+        console.error('Verifica si el servicio de "Libreria" está enlazado a "MySQL" en Railway.');
     } else {
         console.log('MySQL conectado en Railway');
     }
 });
 
-// RUTAS
+// RUTAS DE LA API
+
 app.get('/libros', (req, res) => {
     const sql = 'SELECT * FROM libros ORDER BY titulo';
     db.query(sql, (err, results) => {
@@ -179,6 +184,7 @@ app.get('/ventas', (req, res) => {
     });
 });
 
+// Ruta para servir el frontend (index.html)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
