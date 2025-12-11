@@ -8,36 +8,60 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
-
-let db;
-
-if (process.env.MYSQL_URL) {
-    const url = new URL(process.env.MYSQL_URL);
-    db = mysql.createConnection({
-        host: url.hostname,
-        user: url.username,
-        password: url.password,
-        database: url.pathname.replace('/', '') || 'railway',
-        port: url.port || 3306
-    });
-} else {
-    db = mysql.createConnection({
-        host: process.env.MYSQLHOST || 'localhost',
-        user: process.env.MYSQLUSER || 'root',
-        password: process.env.MYSQLPASSWORD || '',
-        database: process.env.MYSQLDATABASE || 'railway',
-        port: process.env.MYSQLPORT || 3306
-    });
-}
+const db = mysql.createConnection({
+    host: process.env.MYSQLHOST || 'localhost',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || '',
+    database: process.env.MYSQLDATABASE || 'railway',
+    port: process.env.MYSQLPORT || 3306,
+    
+    // Configuraciones importantes para Railway:
+    connectTimeout: 10000,
+    timeout: 60000,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0
+});
 
 db.connect((err) => {
     if (err) {
-        console.error('Error conectando a MySQL:', err.message);
+        console.error('Error MySQL:', err.message);
+        console.log('Pero la app puede funcionar en modo demo');
     } else {
-        console.log('Conectado a MySQL de Railway');
+        console.log('✅ MySQL conectado en Railway');
     }
 });
 
+// VERIFICAR TABLAS AL INICIAR
+db.query(`
+    CREATE TABLE IF NOT EXISTS libros (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        titulo VARCHAR(200) NOT NULL,
+        autor VARCHAR(100) NOT NULL,
+        precio DECIMAL(10, 2) NOT NULL,
+        stock INT NOT NULL DEFAULT 10,
+        descripcion TEXT,
+        fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+`, (err) => {
+    if (err) console.log('Error creando tabla libros:', err.message);
+    else console.log('Tabla libros verificada');
+    
+    db.query(`
+        CREATE TABLE IF NOT EXISTS ventas (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            libro_id INT NOT NULL,
+            cantidad INT NOT NULL,
+            fecha_venta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            total DECIMAL(10, 2) NOT NULL,
+            FOREIGN KEY (libro_id) REFERENCES libros(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) console.log('Error creando tabla ventas:', err.message);
+        else console.log('Tabla ventas verificada');
+    });
+});
+
+// RUTAS
 app.get('/libros', (req, res) => {
     const sql = 'SELECT * FROM libros ORDER BY titulo';
     db.query(sql, (err, results) => {
@@ -189,5 +213,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en puerto ${PORT}`);
+    console.log(`Servidor listo en puerto ${PORT}`);
 });
