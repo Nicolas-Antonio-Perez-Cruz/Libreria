@@ -4,31 +4,36 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 
-// 1. PUERTO: Usamos el puerto que Railway asigna (ej. 8080 en tu log)
+// Usamos el puerto que Railway asigna (ej. 8080 en tu log)
 const PORT = process.env.PORT || 3000; 
 
 // MIDDLEWARE
 app.use(cors());
 app.use(express.json());
-// Servimos archivos estáticos (index.html, script.js, css, etc.)
+// Servimos archivos estáticos
 app.use(express.static(__dirname)); 
 
-// 2. CONEXIÓN A LA BASE DE DATOS EN RAILWAY (Optimizado contra ETIMEDOUT)
-// Esta configuración usa las variables individuales inyectadas por Railway 
-// (MYSQLHOST, MYSQLUSER, etc.).
+// CONEXIÓN A LA BASE DE DATOS EN RAILWAY (Usa la variable MYSQL_URL que enlazaste)
 const db = mysql.createConnection({
+    // La forma más directa de usar la variable MYSQL_URL enlazada
+    uri: process.env.MYSQL_URL, 
+    
+    // Si la URI falla, usamos el fallback de variables individuales (Host, User, etc.)
     host: process.env.MYSQLHOST, 
     user: process.env.MYSQLUSER,
     port: process.env.MYSQLPORT, 
     database: process.env.MYSQL_DATABASE, 
     password: process.env.MYSQLPASSWORD,
+    
     multipleStatements : true,
-    connectTimeout: 20000 //
-    });
+    // CRÍTICO: Solución para ETIMEDOUT (Aumentamos el tiempo de espera)
+    connectTimeout: 20000 
+});
+
 db.connect((err) => {
     if (err) {
         console.error('Error MySQL: NO SE PUDO CONECTAR', err.message);
-        console.error('Verifica que tu servicio de "Libreria" esté enlazado a "MySQL" en Railway.');
+        console.error('VERIFICACIÓN: Tu último paso fue correcto. Fuerza un reinicio o push si este error persiste.');
     } else {
         console.log('MySQL conectado en Railway');
     }
@@ -40,7 +45,7 @@ app.get('/libros', (req, res) => {
     const sql = 'SELECT * FROM libros ORDER BY titulo';
     db.query(sql, (err, results) => {
         if (err) {
-            // Este es el error que está causando el 500 en el frontend si la DB falla
+            // Este error causa el Error 500 en el frontend si la DB no está lista
             console.error('Error al obtener libros:', err.message);
             res.status(500).json({ error: 'Error al obtener datos de la base de datos.' });
             return;
