@@ -20,13 +20,11 @@ const db = mysql.createConnection({
     host: process.env.MYSQLHOST, 
     user: process.env.MYSQLUSER,
     port: process.env.MYSQLPORT, 
-    database: process.env.MYSQL_DATABASE, // Usamos la variable con guión bajo
+    database: process.env.MYSQL_DATABASE, 
     password: process.env.MYSQLPASSWORD,
     multipleStatements : true,
-    // CRÍTICO: Aumentamos el tiempo de espera de conexión a 20 segundos para evitar ETIMEDOUT
-    connectTimeout: 20000 
-});
-
+    connectTimeout: 20000 //
+    });
 db.connect((err) => {
     if (err) {
         console.error('Error MySQL: NO SE PUDO CONECTAR', err.message);
