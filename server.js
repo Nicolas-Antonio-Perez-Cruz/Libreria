@@ -9,13 +9,26 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-const db = mysql.createConnection({
-    host: process.env.MYSQLHOST || 'localhost',
-    user: process.env.MYSQLUSER || 'root',
-    password: process.env.MYSQLPASSWORD || process.env.MYSQL_ROOT_PASSWORD || '',
-    database: process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'railway',
-    port: process.env.MYSQLPORT || 3306
-});
+let db;
+
+if (process.env.MYSQL_URL) {
+    const url = new URL(process.env.MYSQL_URL);
+    db = mysql.createConnection({
+        host: url.hostname,
+        user: url.username,
+        password: url.password,
+        database: url.pathname.replace('/', '') || 'railway',
+        port: url.port || 3306
+    });
+} else {
+    db = mysql.createConnection({
+        host: process.env.MYSQLHOST || 'localhost',
+        user: process.env.MYSQLUSER || 'root',
+        password: process.env.MYSQLPASSWORD || '',
+        database: process.env.MYSQLDATABASE || 'railway',
+        port: process.env.MYSQLPORT || 3306
+    });
+}
 
 db.connect((err) => {
     if (err) {
