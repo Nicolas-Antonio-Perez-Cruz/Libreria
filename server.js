@@ -22,7 +22,6 @@ const db = mysql.createConnection({
 db.connect((err) => {
     if (err) {
         console.error('Error MySQL: NO SE PUDO CONECTAR', err.message);
-        console.error('VERIFICACIÓN: Tu último paso fue correcto. Fuerza un reinicio o push si este error persiste.');
     } else {
         console.log('MySQL conectado en Railway');
     }
@@ -112,7 +111,7 @@ app.post('/comprar', (req, res) => {
     const { libro_id, cantidad } = req.body;
     
     if (!libro_id || !cantidad || cantidad <= 0) {
-        res.status(400).json({ error: 'Datos inválidos' });
+        res.status(400).json({ error: 'Datos invalidos' });
         return;
     }
     
