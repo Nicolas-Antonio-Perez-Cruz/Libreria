@@ -3,30 +3,19 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 const app = express();
-
-// Usamos el puerto que Railway asigna (ej. 8080 en tu log)
 const PORT = process.env.PORT || 3000; 
-
-// MIDDLEWARE
 app.use(cors());
 app.use(express.json());
-// Servimos archivos estáticos
 app.use(express.static(__dirname)); 
 
-// CONEXIÓN A LA BASE DE DATOS EN RAILWAY (Usa la variable MYSQL_URL que enlazaste)
 const db = mysql.createConnection({
-    // La forma más directa de usar la variable MYSQL_URL enlazada
     uri: process.env.MYSQL_URL, 
-    
-    // Si la URI falla, usamos el fallback de variables individuales (Host, User, etc.)
     host: process.env.MYSQLHOST, 
     user: process.env.MYSQLUSER,
     port: process.env.MYSQLPORT, 
     database: process.env.MYSQL_DATABASE, 
     password: process.env.MYSQLPASSWORD,
-    
     multipleStatements : true,
-    // CRÍTICO: Solución para ETIMEDOUT (Aumentamos el tiempo de espera)
     connectTimeout: 20000 
 });
 
@@ -39,13 +28,10 @@ db.connect((err) => {
     }
 });
 
-// RUTAS DE LA API
-
 app.get('/libros', (req, res) => {
     const sql = 'SELECT * FROM libros ORDER BY titulo';
     db.query(sql, (err, results) => {
         if (err) {
-            // Este error causa el Error 500 en el frontend si la DB no está lista
             console.error('Error al obtener libros:', err.message);
             res.status(500).json({ error: 'Error al obtener datos de la base de datos.' });
             return;
@@ -188,8 +174,6 @@ app.get('/ventas', (req, res) => {
         res.json(results);
     });
 });
-
-// Ruta para servir el frontend (index.html)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
