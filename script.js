@@ -1,7 +1,25 @@
 const API_URL = ''; 
 let libroActual = null;
 let todosLosLibros = [];
-//Mostrar y coultar secciones
+
+async function manejarFetch(url, options = {}) {
+    const respuesta = await fetch(url, options);
+    const contentType = respuesta.headers.get("content-type");
+    
+    if (!respuesta.ok) {
+        let errorData = { message: `Error ${respuesta.status}` };
+        if (contentType && contentType.includes("application/json")) {
+            errorData = await respuesta.json();
+        }
+        throw new Error(errorData.message || `Error ${respuesta.status}: Fallo en la solicitud`);
+    }
+    
+    if (contentType && contentType.includes("application/json")) {
+        return respuesta.json();
+    }
+    return respuesta;
+}
+
 function mostrarSeccion(seccionId) {
     document.querySelectorAll('main section').forEach(sec => {
         sec.classList.remove('seccion-activa');
@@ -27,10 +45,8 @@ async function cargarLibros() {
         const lista = document.getElementById('lista-libros');
         lista.innerHTML = '<p>Cargando libros...</p>';
         
-        const respuesta = await fetch(`${API_URL}/libros`);
-        if (!respuesta.ok) throw new Error(`Error ${respuesta.status}`);
+        const libros = await manejarFetch(`${API_URL}/libros`); 
         
-        const libros = await respuesta.json();
         todosLosLibros = libros;
         mostrarLibros(libros);
         
@@ -39,6 +55,7 @@ async function cargarLibros() {
             `<p class="error">Error al cargar libros: ${error.message}</p>`;
     }
 }
+
 function mostrarLibros(libros) {
     const lista = document.getElementById('lista-libros');
     
@@ -87,13 +104,11 @@ function configurarFormularioAgregar() {
         };
         
         try {
-            const respuesta = await fetch(`${API_URL}/libros`, {
+            await manejarFetch(`${API_URL}/libros`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(nuevoLibro)
             });
-            
-            if (!respuesta.ok) throw new Error(`Error ${respuesta.status}`);
             
             alert(`Libro "${nuevoLibro.titulo}" agregado.`);
             e.target.reset();
@@ -116,18 +131,11 @@ async function buscarLibroParaEditar() {
     }
     
     try {
-        const respuesta = await fetch(`${API_URL}/libros/${id}`);
-        
-        if (!respuesta.ok) {
-            alert('Libro no encontrado con ese ID.');
-            return;
-        }
-        
-        const libro = await respuesta.json();
+        const libro = await manejarFetch(`${API_URL}/libros/${id}`);
         mostrarFormularioEdicion(libro);
         
     } catch (error) {
-        alert(`Error en la búsqueda de la API: ${error.message}`);
+        alert(`Libro no encontrado o error en la búsqueda: ${error.message}`);
     }
 }
 
@@ -164,13 +172,11 @@ function configurarFormularioEdicion() {
         };
         
         try {
-            const respuesta = await fetch(`${API_URL}/libros/${id}`, {
+            await manejarFetch(`${API_URL}/libros/${id}`, {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(libroActualizado)
             });
-            
-            if (!respuesta.ok) throw new Error(`Error ${respuesta.status}`);
             
             alert(`Libro actualizado.`);
             document.getElementById('form-editar-libro').classList.add('form-oculto');
@@ -187,11 +193,7 @@ async function eliminarLibro() {
     if (!confirm(`¿Estás seguro de eliminar "${libroActual.titulo}"?`)) return;
     
     try {
-        const respuesta = await fetch(`${API_URL}/libros/${libroActual.id}`, {
-            method: 'DELETE'
-        });
-        
-        if (!respuesta.ok) throw new Error(`Error ${respuesta.status}`);
+        await manejarFetch(`${API_URL}/libros/${libroActual.id}`, { method: 'DELETE' });
         
         alert(`Libro eliminado.`);
         document.getElementById('form-editar-libro').classList.add('form-oculto');
@@ -204,10 +206,7 @@ async function eliminarLibro() {
 
 async function abrirModalCompra(id) {
     try {
-        const respuesta = await fetch(`${API_URL}/libros/${id}`);
-        if (!respuesta.ok) throw new Error(`Error ${respuesta.status}`);
-        
-        const libro = await respuesta.json();
+        const libro = await manejarFetch(`${API_URL}/libros/${id}`);
         libroActual = libro;
         
         document.getElementById('modal-titulo').textContent = libro.titulo;
@@ -238,7 +237,7 @@ async function confirmarCompra() {
     }
     
     try {
-        const respuesta = await fetch(`${API_URL}/comprar`, {
+        const resultado = await manejarFetch(`${API_URL}/comprar`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -247,9 +246,6 @@ async function confirmarCompra() {
             })
         });
         
-        if (!respuesta.ok) throw new Error(`Error ${respuesta.status}`);
-        
-        const resultado = await respuesta.json();
         alert(`Compra exitosa! Total: $${resultado.total}`);
         
         cerrarModal();
@@ -273,6 +269,7 @@ async function cargarVentas() {
             `<p class="error">Error al cargar ventas: ${error.message}</p>`;
     }
 }
+
 function mostrarVentas(ventas) {
     const tabla = document.getElementById('lista-ventas'); 
     if (!tabla) return; 
@@ -280,10 +277,10 @@ function mostrarVentas(ventas) {
     const tbody = tabla.querySelector('tbody');
 
     if (ventas.length === 0) {
-
         tbody.innerHTML = '<tr><td colspan="6">No hay registros de ventas.</td></tr>';
         return;
     }
+    
     tbody.innerHTML = ventas.map(venta => `
         <tr>
             <td>#${venta.id}</td>
@@ -309,4 +306,5 @@ function inicializarApp() {
     });
     cargarLibros(); 
 }
+
 document.addEventListener('DOMContentLoaded', inicializarApp);
