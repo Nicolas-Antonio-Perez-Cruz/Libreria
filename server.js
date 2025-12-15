@@ -173,6 +173,7 @@ app.get('/ventas', (req, res) => {
         res.json(results);
     });
 });
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
