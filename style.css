@@ -160,3 +160,34 @@ button {
     gap: 10px;
     margin-top: 20px;
 }
+.tabla-ventas-contenedor {
+    overflow-x: auto; 
+    margin-top: 20px;
+}
+
+#lista-ventas {
+    width: 100%;
+    border-collapse: collapse; 
+    border-radius: 6px; 
+    overflow: hidden; 
+    background-color: #ffffff;
+}
+
+#lista-ventas thead th {
+    background-color: #212529; 
+    color: white; 
+    padding: 12px 15px;
+    text-align: left;
+    text-transform: uppercase;
+}
+#lista-ventas tbody tr {
+    border-bottom: 1px solid #eeeeee;
+}
+#lista-ventas tbody tr:hover {
+    background-color: #e9f5ff; /* Hover azul muy suave */
+}
+#lista-ventas tbody td {
+    padding: 10px 15px;
+    font-size: 14px;
+    color: #333333;
+}
