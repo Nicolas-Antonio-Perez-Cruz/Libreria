@@ -273,7 +273,6 @@ async function cargarVentas() {
             `<p class="error">Error al cargar ventas: ${error.message}</p>`;
     }
 }
-
 function mostrarVentas(ventas) {
     const tabla = document.getElementById('lista-ventas'); 
     if (!tabla) return; 
@@ -281,11 +280,10 @@ function mostrarVentas(ventas) {
     const tbody = tabla.querySelector('tbody');
 
     if (ventas.length === 0) {
-        // Colspan de 7 (para ID, Título, Autor, Cantidad, Total, Fecha, Acciones)
-        tbody.innerHTML = '<tr><td colspan="7">No hay registros de ventas.</td></tr>';
+
+        tbody.innerHTML = '<tr><td colspan="6">No hay registros de ventas.</td></tr>';
         return;
     }
-    
     tbody.innerHTML = ventas.map(venta => `
         <tr>
             <td>#${venta.id}</td>
@@ -294,27 +292,10 @@ function mostrarVentas(ventas) {
             <td>${venta.cantidad}</td>
             <td>$${(parseFloat(venta.total) || 0).toFixed(2)}</td>
             <td>${new Date(venta.fecha_venta).toLocaleDateString()}</td>
-            <td>
-                <button onclick="eliminarVenta(${venta.id})" class="btn-eliminar-sm">Eliminar</button>
-            </td>
         </tr>
     `).join('');
 }
 
-async function eliminarVenta(id) {
-    if (!confirm(`¿Estás seguro de eliminar el registro de Venta #${id}?`)) return;
-    
-    try {
-        await manejarFetch(`${API_URL}/ventas/${id}`, { method: 'DELETE' });
-        
-        alert(`Venta #${id} eliminada.`);
-        
-        cargarVentas();
-        
-    } catch (error) {
-        alert(`Error al eliminar la venta: ${error.message}`);
-    }
-}
 function inicializarApp() {
     configurarFormularioAgregar();
     configurarFormularioEdicion();
