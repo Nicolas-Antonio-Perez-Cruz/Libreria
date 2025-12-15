@@ -184,7 +184,7 @@ button {
     border-bottom: 1px solid #eeeeee;
 }
 #lista-ventas tbody tr:hover {
-    background-color: #e9f5ff; /* Hover azul muy suave */
+    background-color: #5a8a68; /* Hover verde muy suave */
 }
 #lista-ventas tbody td {
     padding: 10px 15px;
