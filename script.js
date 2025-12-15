@@ -292,7 +292,7 @@ function mostrarVentas(ventas) {
             <td>${venta.titulo || 'N/A'}</td>
             <td>${venta.autor || 'N/A'}</td>
             <td>${venta.cantidad}</td>
-            <td>$${venta.total.toFixed(2)}</td>
+            <td>$${(parseFloat(venta.total) || 0).toFixed(2)}</td>
             <td>${new Date(venta.fecha_venta).toLocaleDateString()}</td>
         </tr>
     `).join('');
