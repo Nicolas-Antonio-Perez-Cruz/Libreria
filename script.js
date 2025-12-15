@@ -270,6 +270,30 @@ async function cargarVentas() {
     }
 }
 
+async function cargarVentas() {
+    try {
+        const tabla = document.getElementById('lista-ventas');
+        if (!tabla) return;
+
+        const tbody = tabla.querySelector('tbody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="6">Cargando ventas...</td></tr>';
+        }
+        
+        const ventas = await manejarFetch(`${API_URL}/ventas`);
+        mostrarVentas(ventas);
+        
+    } catch (error) {
+        const tabla = document.getElementById('lista-ventas');
+        if (tabla) {
+            const tbody = tabla.querySelector('tbody');
+            if (tbody) {
+                 tbody.innerHTML = `<tr><td colspan="6" class="error">Error al cargar ventas: ${error.message}</td></tr>`;
+            }
+        }
+    }
+}
+
 function mostrarVentas(ventas) {
     const tabla = document.getElementById('lista-ventas'); 
     if (!tabla) return; 
@@ -280,7 +304,7 @@ function mostrarVentas(ventas) {
         tbody.innerHTML = '<tr><td colspan="6">No hay registros de ventas.</td></tr>';
         return;
     }
-    
+
     tbody.innerHTML = ventas.map(venta => `
         <tr>
             <td>#${venta.id}</td>
