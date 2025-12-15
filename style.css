@@ -3,21 +3,34 @@
     padding: 0;
     box-sizing: border-box;
 }
+
 body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; 
     line-height: 1.6;
-    background-color: #ffffff; 
+    /* 1. Fondo sutil */
+    background-color: #f8f9fa; 
     color: #000000; 
 }
+
 .container {
-    margin: 0 auto;
+    max-width: 1200px;
+    /* 2. Sombreado y fondo blanco para la tarjeta principal */
+    margin: 20px auto;
+    padding: 0 20px;
+    background-color: #ffffff;
+    border-radius: 10px; 
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
 }
+
 header {
-    background-color: rgb(255, 0, 0); 
-    color: #000000;
-    padding: 40px 30;
-    border-bottom: 2px solid #000000;
+    /* 3. Estilo de encabezado elegante y oscuro */
+    background-color: #212529; 
+    color: white;
+    padding: 30px 20px; 
+    border-bottom: none;
     margin-bottom: 20px;
     text-align: center;
+    border-radius: 8px 8px 0 0; 
 }
 header h1 {
     margin-bottom: 15px;
@@ -28,8 +41,8 @@ nav {
     gap: 30px;
 }
 nav a {
-    background-color: white;
-    color: #000000;
+    background-color: #335679; 
+    color: white;
     text-decoration: none;
     padding: 5px 10px;
     border-radius: 20px ;
@@ -39,9 +52,9 @@ nav a {
     transition: all 0.2s;
 }
 nav a:hover {
-    background-color: violet;
-    transform: translate(-2px );
-   
+    /* Ajuste para el hover */
+    background-color: #495057;
+    transform: translateY(-2px); 
 }
 section {
     border: 1px solid black;
@@ -54,6 +67,7 @@ h2 {
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
+    font-weight: 500;
 }
 .seccion-oculta {
     display: none;
@@ -145,11 +159,4 @@ button {
     display: flex;
     gap: 10px;
     margin-top: 20px;
-}
-footer {
-    text-align: center;
-    margin-top: 40px;
-    padding: 20px;
-    color: #aaa;
-    border-top: 1px solid #eee;
 }

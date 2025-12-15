@@ -9,9 +9,9 @@
 <body>
     <div class="container">
         <header>
-            <h1>Libreria</h1>
+            <h1>Librería</h1>
             <nav>
-                <a href="#" onclick="mostrarSeccion('catalogo')">Catalogo</a>
+                <a href="#" onclick="mostrarSeccion('catalogo')">Catálogo</a> 
                 <a href="#" onclick="mostrarSeccion('agregar')">Agregar Libro</a>
                 <a href="#" onclick="mostrarSeccion('editar')">Editar Libro</a>
                 <a href="#" onclick="mostrarSeccion('ventas')">Ver Ventas</a>
@@ -19,7 +19,7 @@
         </header>
         <main>
             <section id="catalogo" class="seccion-activa">
-                <h2>Catalogo de Libros</h2>
+                <h2>Catálogo de Libros</h2>
                 <div class="filtros">
                     <input type="text" id="buscarLibro" placeholder="Buscar libro..." 
                            onkeyup="filtrarLibros()">
@@ -28,6 +28,7 @@
                     <p>Cargando libros...</p>
                 </div>
             </section>
+            
             <section id="agregar" class="seccion-oculta">
                 <h2>Agregar Nuevo Libro</h2>
                 <form id="form-agregar-libro">
@@ -39,12 +40,13 @@
                     <button type="submit">Agregar Libro</button>
                 </form>
             </section>
+            
             <section id="editar" class="seccion-oculta">
                 <h2>Editar Libro Existente</h2>
                 <div class="buscar-editar">
-    <input type="number" id="id-editar" placeholder="ID del libro a editar">
-    <button type="button" onclick="buscarLibroParaEditar()">Buscar</button> 
-</div>
+                    <input type="number" id="id-editar" placeholder="ID del libro a editar">
+                    <button type="button" onclick="buscarLibroParaEditar()">Buscar</button> 
+                </div>
                 <form id="form-editar-libro" class="form-oculto">
                     <input type="hidden" id="editar-id">
                     <input type="text" id="editar-titulo" placeholder="Título" required>
@@ -58,28 +60,30 @@
                     </div>
                 </form>
             </section>
+            
             <section id="ventas" class="seccion-oculta">
-    <h2>Ventas Realizadas</h2>
-    <div class="tabla-ventas-contenedor">
-        <table id="lista-ventas">
-            <thead>
-                <tr>
-                    <th>ID Venta</th>
-                    <th>Título Libro</th>
-                    <th>Autor</th>
-                    <th>Cantidad</th>
-                    <th>Total ($)</th>
-                    <th>Fecha</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td colspan="6">Cargando ventas...</td></tr>
-            </tbody>
-        </table>
-    </div>
-</section>
+                <h2>Ventas Realizadas</h2>
+                <div class="tabla-ventas-contenedor">
+                    <table id="lista-ventas">
+                        <thead>
+                            <tr>
+                                <th>ID Venta</th>
+                                <th>Título Libro</th>
+                                <th>Autor</th>
+                                <th>Cantidad</th>
+                                <th>Total ($)</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="6">Cargando ventas...</td></tr> 
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </main>
     </div>
+    
     <div id="modal-comprar" class="modal">
         <div class="modal-contenido">
             <h3>Comprar Libro</h3>
@@ -93,6 +97,7 @@
             </div>
         </div>
     </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
