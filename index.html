@@ -59,11 +59,25 @@
                 </form>
             </section>
             <section id="ventas" class="seccion-oculta">
-                <h2>Ventas Realizadas</h2>
-                <div id="lista-ventas">
-                    <p>Cargando ventas...</p>
-                </div>
-            </section>
+    <h2>Ventas Realizadas</h2>
+    <div class="tabla-ventas-contenedor">
+        <table id="lista-ventas">
+            <thead>
+                <tr>
+                    <th>ID Venta</th>
+                    <th>Título Libro</th>
+                    <th>Autor</th>
+                    <th>Cantidad</th>
+                    <th>Total ($)</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="6">Cargando ventas...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
         </main>
     </div>
     <div id="modal-comprar" class="modal">

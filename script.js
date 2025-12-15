@@ -1,7 +1,7 @@
 const API_URL = ''; 
 let libroActual = null;
 let todosLosLibros = [];
-
+//Mostrar y coultar secciones
 function mostrarSeccion(seccionId) {
     document.querySelectorAll('main section').forEach(sec => {
         sec.classList.remove('seccion-activa');
@@ -10,7 +10,7 @@ function mostrarSeccion(seccionId) {
     
     const sec = document.getElementById(seccionId);
     if (sec) {
-        sec.classList.remove('seccion-oculta');
+        sec.classList.remove('seccion-oculta'); 
         sec.classList.add('seccion-activa');
     }
     
@@ -39,7 +39,6 @@ async function cargarLibros() {
             `<p class="error">Error al cargar libros: ${error.message}</p>`;
     }
 }
-
 function mostrarLibros(libros) {
     const lista = document.getElementById('lista-libros');
     
@@ -279,25 +278,23 @@ async function cargarVentas() {
 }
 
 function mostrarVentas(ventas) {
-    const lista = document.getElementById('lista-ventas');
+    const tabla = document.getElementById('lista-ventas'); 
+    if (!tabla) return; 
+    const tbody = tabla.querySelector('tbody');
     
     if (ventas.length === 0) {
-        lista.innerHTML = '<p>No hay registros de ventas.</p>';
+        tbody.innerHTML = '<tr><td colspan="6">No hay registros de ventas.</td></tr>';
         return;
     }
-    
-    lista.innerHTML = ventas.map(venta => `
-        <div class="venta-item">
-            <div>
-                <strong>Venta #${venta.id}</strong><br>
-                Libro ID: ${venta.libro_id}<br>
-                Cantidad: ${venta.cantidad}
-            </div>
-            <div>
-                Total: $${venta.total}<br>
-                Fecha: ${new Date(venta.fecha_venta).toLocaleDateString()}
-            </div>
-        </div>
+    tbody.innerHTML = ventas.map(venta => `
+        <tr>
+            <td>#${venta.id}</td>
+            <td>${venta.titulo || 'N/A'}</td>
+            <td>${venta.autor || 'N/A'}</td>
+            <td>${venta.cantidad}</td>
+            <td>$${venta.total.toFixed(2)}</td>
+            <td>${new Date(venta.fecha_venta).toLocaleDateString()}</td>
+        </tr>
     `).join('');
 }
 

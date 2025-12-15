@@ -28,16 +28,20 @@ nav {
     gap: 30px;
 }
 nav a {
+    background-color: white;
     color: #000000;
     text-decoration: none;
     padding: 5px 10px;
+    border-radius: 20px ;
     border-bottom: 2px solid transparent;
+    font-weight: bold;
+    font-size: 16px;
     transition: all 0.2s;
 }
 nav a:hover {
+    background-color: violet;
+    transform: translate(-2px );
    
-    border-bottom: 2px solid #007bff;
-    background-color: transparent;
 }
 section {
     border: 1px solid black;
